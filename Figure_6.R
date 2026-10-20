@@ -103,8 +103,8 @@ UniqueCattle <- unique(TVRdata[!(TVRdata$DVO %in% "B"), c("X.coord", "y.coord")]
 genotype_cols <- c("MLVA4" = "#FFA500", "MLVA6" = "#0a7e8c", "MLVA297" = "#B85FD9")
 
 # produce the 4-panel figure
-pdf("Figure_6.pdf", width = 10, height = 8)
-par(mfrow = c(2, 2), mar = c(4, 4, 3, 1))
+jpeg("Figure_6.jpg", width = 10, height = 8, units = "in", res = 600, quality = 100)
+par(mfrow = c(2, 2), mar = c(4, 6.5, 3, 1))
 
 for (p in probs) {
   

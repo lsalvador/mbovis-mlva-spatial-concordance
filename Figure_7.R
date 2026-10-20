@@ -22,17 +22,26 @@
 # Note: working directory setup was deleted from original version
 #
 # Input:  Supplementary_Table_2.xls / see Data Availability Statement]
-# Output: Figure_7.pdf
-# Requirements: R 4.4.2; packages: ks, readxl
+# Output: Figure_7.jpg
+# Requirements: R 4.4.2; packages: ks, readxl, ggplot2, ggbreak, pdftools, magick
 # Contact: lilianasalvador@arizona.edu
-# Last updated: October 1, 2026KDA across multiple KDE % contour thresholds, per shared genotype combo
+# Last updated: October 19, 2026 
+# KDA across multiple KDE % contour thresholds, per shared genotype combo
 ##############################################################################
 
 install.packages("ks")
 install.packages("readxl")
+install.packages("ggplot2")
+install.packages("ggbreak")
+install.packages("magick")
+install.packages("pdftools")
 
 library(ks)
 library(readxl)
+library(ggplot2)
+library(ggbreak)
+library(magick)
+library (pdftools)
 
 set.seed(12345)
 
@@ -279,8 +288,8 @@ for (pct in kde_pcts) {
   }
 }
 
-saveRDS(all_runs, file.path(project_dir, "all_runs.rds"))     
-message("Saved all_runs.rds -- reload this to redo figures without rerunning the analysis")
+#saveRDS(all_runs, file.path(project_dir, "all_runs.rds"))     
+#message("Saved all_runs.rds -- reload this to redo figures without rerunning the analysis")
 
 ## Collect results and skipped cells separately
 results <- do.call(rbind, lapply(all_runs, function(x) x$summary))
@@ -304,9 +313,9 @@ if (!is.null(skipped)) {
 # This can be run separately if all_runs.rds has already been generated
 
 # Load the all_runs.rds file
-all_runs <- readRDS("all_runs.rds")
+#all_runs <- readRDS("all_runs.rds")
 
-message("Loaded all_runs.rds")
+#message("Loaded all_runs.rds")
 
 # Define KDE percentages and genotype combos
 kde_pcts <- c(25, 50, 75, 95)
@@ -433,12 +442,12 @@ create_panel <- function(combo_data_list, kde_pct, y_max, break_points = NULL, s
     theme_minimal() +
     theme(
       panel.grid = element_blank(),
-      plot.title = element_text(size = 12, hjust = 0.5, face = "bold"),
-      axis.title = element_text(size = 8),
-      axis.text = element_text(size = 7),
+      plot.title = element_text(size = 14, hjust = 0.5, face = "bold"),
+      axis.title = element_text(size = 13),
+      axis.text = element_text(size = 9),
       legend.position = "top",
       legend.title = element_blank(),
-      legend.text = element_text(size = 7),
+      legend.text = element_text(size = 10),
       legend.key.size = unit(0.3, "cm")
     )
   
@@ -539,12 +548,13 @@ top_info <- image_info(top_row)
 bottom_info <- image_info(bottom_row)
 
 # Create row label images (blank with rotated text) - to the LEFT of the plots
-label_width <- 120  # pixels of extra space for row labels
+label_width <- 150  # pixels of extra space for row labels
 
 # Top row label: Badger -> Cattle
 top_label <- image_blank(width = label_width, height = top_info$height, color = "white")
 top_label <- image_annotate(top_label, "Badger -> Cattle",
-                            size = 40,
+                            size = 70,
+                            font = "Helvetica-Bold",
                             gravity = "center",
                             degrees = 270,
                             weight = 700,
@@ -553,7 +563,8 @@ top_label <- image_annotate(top_label, "Badger -> Cattle",
 # Bottom row label: Cattle -> Badger
 bottom_label <- image_blank(width = label_width, height = bottom_info$height, color = "white")
 bottom_label <- image_annotate(bottom_label, "Cattle -> Badger",
-                               size = 40,
+                               size = 70,
+                               font = "Helvetica-Bold",
                                gravity = "center",
                                degrees = 270,
                                weight = 700,
@@ -567,9 +578,8 @@ bottom_row_labeled <- image_append(c(bottom_label, bottom_row))
 combined <- image_append(c(top_row_labeled, bottom_row_labeled), stack = TRUE)
 
 # Save final combined figure
-image_write(combined, "Figure_7.pdf", format = "pdf")
+image_write(combined, "Figure_7.jpg", format = "jpeg")
 
-message("Done! Combined figure saved: Figure_7.pdf")
 
 ################################################################################
 # Optional: Clean up temporary files
